@@ -146,7 +146,6 @@ class _MemoryScreenState extends State<MemoryScreen> {
               child: Card(
                 margin: const EdgeInsets.only(bottom: 16),
                 elevation: 0,
-                color: Colors.white.withOpacity(0.9),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -161,7 +160,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Colors.black.withOpacity(0.3),
+                              Colors.black.withOpacity(0.6),
                               Colors.transparent,
                             ],
                           ),
@@ -210,11 +209,29 @@ class _MemoryScreenState extends State<MemoryScreen> {
                                     Row(
                                       children: [
                                         Text(
-                                          memory.title ?? '无标题',
+                                          memory.username ?? '匿名用户',
                                           style: const TextStyle(
                                             fontSize: 15,
                                             fontWeight: FontWeight.w500,
                                             color: Colors.white,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(0.2),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Text(
+                                            memory.title ?? '无标题',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -284,23 +301,29 @@ class _MemoryScreenState extends State<MemoryScreen> {
                                   Row(
                                     children: [
                                       Text(
-                                        memory.title ?? '无标题',
+                                        memory.username ?? '匿名用户',
                                         style: const TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w500,
                                           color: Colors.black,
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        '${memory.username ?? '未知用户'} · ID: ${memory.userId}',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[600],
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[200],
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          memory.title ?? '无标题',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[800],
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -308,9 +331,9 @@ class _MemoryScreenState extends State<MemoryScreen> {
                                   const SizedBox(height: 2),
                                   Text(
                                     DateFormat('MM月dd日 HH:mm').format(memory.createdAt),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.white70,
+                                      color: Colors.grey[600],
                                     ),
                                   ),
                                 ],
@@ -444,11 +467,10 @@ class _MemoryScreenState extends State<MemoryScreen> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
         bottomNavigationBar: BottomAppBar(
-          color: Colors.transparent,
-          elevation: 0,
-          height: 60,
-          padding: const EdgeInsets.only(bottom: 8),
-          child: const SizedBox(),
+          shape: const CircularNotchedRectangle(),
+          notchMargin: 8,
+          color: Colors.white,
+          child: const SizedBox(height: 56),
         ),
       ),
     );
