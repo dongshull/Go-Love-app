@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
+import '../models/user.dart';
 import 'home_screen.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
@@ -279,6 +280,13 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
     _formKey.currentState!.save(); // 确保所有值都被保存
 
     _safeSetState(() => _isLoading = true);
+    
+    // 添加定时器，2秒后自动重置加载状态，允许用户再次点击登录按钮
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        _safeSetState(() => _isLoading = false);
+      }
+    });
 
     try {
       // 设置服务器地址
@@ -297,10 +305,12 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
       
       if (mounted) {
         print('准备导航到 HomeScreen');
+        final userData = result['user'];
+        final user = User.fromJson(userData);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => HomeScreen(user: result['user']),
+            builder: (context) => HomeScreen(user: user),
           ),
         );
         print('已执行导航操作');
@@ -316,16 +326,9 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
             duration: const Duration(seconds: 3),
           ),
         );
-        
-        // 确保在登录失败时也重置按钮状态
-        _safeSetState(() => _isLoading = false);
-      }
-    } finally {
-      // 防止多次调用setState
-      if (mounted && _isLoading) {
-        _safeSetState(() => _isLoading = false);
       }
     }
+    // 移除finally块，因为我们已经使用定时器来重置状态
   }
   
   void _showLoginHistoryDialog() {

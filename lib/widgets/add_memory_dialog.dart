@@ -64,11 +64,8 @@ class _AddMemoryDialogState extends State<AddMemoryDialog> {
       
       // 构建完整的Base64图片数据
       final imageData = 'data:$mimeType;base64,$base64Image';
-      print('图片数据长度: ${imageData.length}');
-      print('图片数据前100个字符: ${imageData.substring(0, imageData.length > 100 ? 100 : imageData.length)}');
 
       await _apiService.createMemory(
-        avatar: 'https://api.dicebear.com/7.x/thumbs/svg?seed=${DateTime.now().millisecondsSinceEpoch}',
         title: _titleController.text,
         content: _contentController.text,
         image: imageData,

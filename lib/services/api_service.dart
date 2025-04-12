@@ -6,7 +6,7 @@ import '../models/memory.dart';
 import '../models/whisper.dart';
 
 class ApiService {
-  String baseUrl = 'http://localhost:8000/api';
+  String baseUrl = 'http://localhost:8000';
   Map<String, String> _headers = {
     'Content-Type': 'application/json',
   };
@@ -28,13 +28,9 @@ class ApiService {
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       url = 'http://' + url;
     }
-    // 确保URL以/api结尾
-    if (!url.endsWith('/api')) {
-      if (url.endsWith('/')) {
-        url = url + 'api';
-      } else {
-        url = url + '/api';
-      }
+    // 移除末尾的斜杠，以便统一格式
+    if (url.endsWith('/')) {
+      url = url.substring(0, url.length - 1);
     }
     
     print('API: 设置基础URL为 $url');
@@ -498,7 +494,7 @@ class ApiService {
       requestBody['avatar'] = avatar;
     }
 
-    print('API: 请求体 - title: ${requestBody['title']}, content: ${requestBody['content']}, moodTag: ${requestBody['mood_tag']}, imageLength: ${image.length}');
+    print('API: 请求体 - $requestBody');
 
     final response = await http.post(
       Uri.parse('$baseUrl/love/memories'),
@@ -740,13 +736,7 @@ class ApiService {
   Future<Map<String, dynamic>> checkDbStatus() async {
     print('API: 开始检查数据库连接状态');
     
-    // 从baseUrl中提取基础部分，去掉可能的/api后缀
-    String baseUrlWithoutApi = baseUrl;
-    if (baseUrl.endsWith('/api')) {
-      baseUrlWithoutApi = baseUrl.substring(0, baseUrl.length - 4);
-    }
-    
-    final testDbUrl = '$baseUrlWithoutApi/test-db';
+    final testDbUrl = '$baseUrl/test-db';
     print('API: 请求地址 - $testDbUrl');
     
     try {

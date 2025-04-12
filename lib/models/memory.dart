@@ -6,6 +6,9 @@ class Memory {
   final String? image;
   final String? moodTag;
   final int userId;
+  final String? username;
+  final String? creatorName;
+  final String? creatorAvatar;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -17,6 +20,9 @@ class Memory {
     this.image,
     this.moodTag,
     required this.userId,
+    this.username,
+    this.creatorName,
+    this.creatorAvatar,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -42,6 +48,9 @@ class Memory {
       image: imageData,
       moodTag: json['mood_tag'],
       userId: json['user_id'] ?? 0,
+      username: json['username'],
+      creatorName: json['creator_name'],
+      creatorAvatar: json['creator_avatar'],
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
           : DateTime.now(),

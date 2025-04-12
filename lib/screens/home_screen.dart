@@ -44,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _screens = [
       DashboardScreen(
         user: widget.user,
-        onNavigateToPage: setPageIndex, // 传递回调函数
+        onNavigateToPage: setPageIndex,
       ),
       const AnniversaryScreen(),
       const MemoryScreen(),

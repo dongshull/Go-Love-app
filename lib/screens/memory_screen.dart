@@ -3,6 +3,7 @@ import '../models/memory.dart';
 import '../services/api_service.dart';
 import '../widgets/add_memory_dialog.dart';
 import '../widgets/edit_memory_dialog.dart';
+import '../utils/image_utils.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:convert';
@@ -102,12 +103,12 @@ class _MemoryScreenState extends State<MemoryScreen> {
     return RefreshIndicator(
       onRefresh: _loadMemories,
       child: Scaffold(
-        extendBody: true,
+        backgroundColor: Colors.grey[100],
         body: ListView.builder(
           controller: _scrollController,
           padding: const EdgeInsets.only(
-            left: 8,
-            right: 8,
+            left: 12,
+            right: 12,
             top: 16,
             bottom: 100,
           ),
@@ -119,20 +120,14 @@ class _MemoryScreenState extends State<MemoryScreen> {
               background: Container(
                 alignment: Alignment.centerRight,
                 padding: const EdgeInsets.only(right: 20),
-                color: Colors.red,
-                child: const Icon(
-                  Icons.delete,
-                  color: Colors.white,
-                ),
+                color: Colors.red[100],
+                child: const Icon(Icons.delete, color: Colors.red),
               ),
               secondaryBackground: Container(
                 alignment: Alignment.centerLeft,
                 padding: const EdgeInsets.only(left: 20),
-                color: Colors.blue,
-                child: const Icon(
-                  Icons.edit,
-                  color: Colors.white,
-                ),
+                color: Colors.blue[100],
+                child: const Icon(Icons.edit, color: Colors.blue),
               ),
               confirmDismiss: (direction) async {
                 if (direction == DismissDirection.endToStart) {
@@ -148,138 +143,318 @@ class _MemoryScreenState extends State<MemoryScreen> {
                   _deleteMemory(memory.id);
                 }
               },
-              child: GestureDetector(
-                onLongPress: () {
-                  _showOptionsMenu(context, memory);
-                },
-                child: Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: SizedBox(
-                    height: 300,
-                    child: Stack(
-                      children: [
-                        // 图片背景
-                        Positioned.fill(
-                          child: memory.image != null
-                            ? _isBase64Image(memory.image!)
-                              ? Builder(
-                                  builder: (context) {
-                                    final imageData = _decodeBase64Image(memory.image!);
-                                    if (imageData != null) {
-                                      return Image.memory(
-                                        imageData,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) {
-                                          print('Base64图片显示错误: $error');
-                                          return _buildErrorContainer('Base64图片显示失败');
-                                        },
-                                      );
-                                    } else {
-                                      return _buildErrorContainer('Base64图片解码失败');
-                                    }
-                                  },
-                                )
-                              : Image.network(
-                                  memory.image!,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    print('网络图片显示错误: $error');
-                                    return _buildErrorContainer('图片加载失败');
-                                  },
-                                )
-                            : Container(
-                                color: Colors.grey[300],
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.image,
-                                    size: 40,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                        ),
-                        // 模糊遮罩
-                        Positioned.fill(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Colors.black.withOpacity(0.2),
-                                  Colors.black.withOpacity(0.6),
-                                ],
-                              ),
-                            ),
+              child: Card(
+                margin: const EdgeInsets.only(bottom: 16),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 头部信息
+                    if (memory.image != null)
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.black.withOpacity(0.6),
+                              Colors.transparent,
+                            ],
                           ),
                         ),
-                        // 内容
-                        Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
                             children: [
-                              // 头像和标题行
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // 头像
-                                  if (memory.avatar != null)
-                                    CircleAvatar(
-                                      radius: 20,
-                                      backgroundImage: NetworkImage(memory.avatar!),
-                                      backgroundColor: Colors.grey[300],
+                              // 头像
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundColor: Colors.grey[200],
+                                child: memory.avatar != null
+                                  ? ImageUtils.isValidBase64Image(memory.avatar)
+                                    ? ClipOval(
+                                        child: ImageUtils.base64ToImage(
+                                          memory.avatar,
+                                          width: 40,
+                                          height: 40,
+                                          errorWidget: const Icon(Icons.person, color: Colors.white),
+                                        ),
+                                      )
+                                    : ClipOval(
+                                        child: Image.network(
+                                          memory.avatar!,
+                                          width: 40,
+                                          height: 40,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (_, __, ___) => const Icon(
+                                            Icons.person,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      )
+                                  : const Icon(
+                                      Icons.person,
+                                      color: Colors.white,
                                     ),
-                                  if (memory.avatar != null)
-                                    const SizedBox(width: 12),
-                                  // 标题
-                                  Expanded(
-                                    child: Text(
-                                      memory.title ?? '无标题',
+                              ),
+                              const SizedBox(width: 12),
+                              // 标题和时间
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          memory.username ?? '匿名用户',
+                                          style: const TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(0.2),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Text(
+                                            memory.title ?? '无标题',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      DateFormat('MM月dd日 HH:mm').format(memory.createdAt),
                                       style: const TextStyle(
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
+                                        fontSize: 12,
+                                        color: Colors.white70,
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                memory.content ?? '无内容',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
+                                  ],
                                 ),
                               ),
-                              const SizedBox(height: 12),
-                              Text(
-                                memory.moodTag ?? '无心情标签',
-                                style: TextStyle(
-                                  color: Colors.pink[300],
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                '创建于：${DateFormat('yyyy-MM-dd HH:mm:ss').format(memory.createdAt)}',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white70,
-                                ),
+                              // 更多操作按钮
+                              IconButton(
+                                icon: const Icon(Icons.more_horiz, color: Colors.white),
+                                onPressed: () => _showOptionsMenu(context, memory),
                               ),
                             ],
                           ),
                         ),
-                      ],
+                      )
+                    else
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Row(
+                          children: [
+                            // 头像
+                            CircleAvatar(
+                              radius: 20,
+                              backgroundColor: Colors.grey[200],
+                              child: memory.avatar != null
+                                ? ImageUtils.isValidBase64Image(memory.avatar)
+                                  ? ClipOval(
+                                      child: ImageUtils.base64ToImage(
+                                        memory.avatar,
+                                        width: 40,
+                                        height: 40,
+                                        errorWidget: const Icon(Icons.person, color: Colors.white),
+                                      ),
+                                    )
+                                  : ClipOval(
+                                      child: Image.network(
+                                        memory.avatar!,
+                                        width: 40,
+                                        height: 40,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) => const Icon(
+                                          Icons.person,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    )
+                                : const Icon(
+                                    Icons.person,
+                                    color: Colors.white,
+                                  ),
+                            ),
+                            const SizedBox(width: 12),
+                            // 标题和时间
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        memory.username ?? '匿名用户',
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[200],
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          memory.title ?? '无标题',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[800],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    DateFormat('MM月dd日 HH:mm').format(memory.createdAt),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // 更多操作按钮
+                            IconButton(
+                              icon: const Icon(Icons.more_horiz),
+                              onPressed: () => _showOptionsMenu(context, memory),
+                            ),
+                          ],
+                        ),
+                      ),
+                    // 内容
+                    if (memory.content != null && memory.content!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          memory.content!,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    // 图片
+                    if (memory.image != null)
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: _isBase64Image(memory.image!)
+                            ? Image.memory(
+                                base64Decode(memory.image!.split(',').last),
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Container(
+                                  height: 200,
+                                  color: Colors.grey[200],
+                                  child: const Center(
+                                    child: Icon(Icons.error_outline),
+                                  ),
+                                ),
+                              )
+                            : CachedNetworkImage(
+                                imageUrl: memory.image!,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => Container(
+                                  height: 200,
+                                  color: Colors.grey[200],
+                                  child: const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) => Container(
+                                  height: 200,
+                                  color: Colors.grey[200],
+                                  child: const Center(
+                                    child: Icon(Icons.error_outline),
+                                  ),
+                                ),
+                              ),
+                        ),
+                      ),
+                    // 底部信息
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          // 心情标签
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.pink[50],
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.mood,
+                                  size: 16,
+                                  color: Colors.pink[400],
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  memory.moodTag ?? '无心情',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.pink[400],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Spacer(),
+                          // 编辑按钮
+                          IconButton(
+                            icon: const Icon(Icons.edit_outlined),
+                            onPressed: () => _showEditDialog(memory),
+                            color: Colors.grey[600],
+                            iconSize: 20,
+                          ),
+                          // 删除按钮
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline),
+                            onPressed: () async {
+                              final confirm = await _showDeleteConfirmDialog(memory);
+                              if (confirm == true) {
+                                _deleteMemory(memory.id);
+                              }
+                            },
+                            color: Colors.grey[600],
+                            iconSize: 20,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             );
@@ -294,8 +469,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
         bottomNavigationBar: BottomAppBar(
           shape: const CircularNotchedRectangle(),
           notchMargin: 8,
-          color: Colors.transparent,
-          elevation: 0,
+          color: Colors.white,
           child: const SizedBox(height: 56),
         ),
       ),
@@ -397,64 +571,13 @@ class _MemoryScreenState extends State<MemoryScreen> {
   // 检查是否是Base64图片
   bool _isBase64Image(String image) {
     try {
-      // 检查是否是data:image格式
       if (image.startsWith('data:image/')) {
         return true;
       }
-      
-      // 尝试解码，如果能成功解码则为Base64
       base64Decode(image);
       return true;
     } catch (e) {
-      print('不是Base64图片: $e');
       return false;
     }
-  }
-
-  // 处理Base64图片数据
-  Uint8List? _decodeBase64Image(String image) {
-    try {
-      if (image.startsWith('data:image/')) {
-        // 处理data:image格式
-        final parts = image.split(',');
-        if (parts.length == 2) {
-          return base64Decode(parts[1]);
-        }
-      } else {
-        // 处理纯Base64字符串
-        return base64Decode(image);
-      }
-    } catch (e) {
-      print('Base64解码失败: $e');
-    }
-    return null;
-  }
-
-  // 构建错误显示容器
-  Widget _buildErrorContainer(String message) {
-    return Container(
-      height: 200,
-      width: double.infinity,
-      color: Colors.grey[300],
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.error,
-            size: 64,
-            color: Colors.white,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
