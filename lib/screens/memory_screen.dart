@@ -146,6 +146,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
               child: Card(
                 margin: const EdgeInsets.only(bottom: 16),
                 elevation: 0,
+                color: Colors.white.withOpacity(0.9),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -160,7 +161,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Colors.black.withOpacity(0.6),
+                              Colors.black.withOpacity(0.3),
                               Colors.transparent,
                             ],
                           ),
@@ -443,10 +444,11 @@ class _MemoryScreenState extends State<MemoryScreen> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
         bottomNavigationBar: BottomAppBar(
-          shape: const CircularNotchedRectangle(),
-          notchMargin: 8,
-          color: Colors.white,
-          child: const SizedBox(height: 56),
+          color: Colors.transparent,
+          elevation: 0,
+          height: 60,
+          padding: const EdgeInsets.only(bottom: 8),
+          child: const SizedBox(),
         ),
       ),
     );
